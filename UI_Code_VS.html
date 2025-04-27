@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Settlement Point Price Prediction</title>
+  
+  <!-- TailwindCSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js for graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-6">
+
+  <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
+    
+    <h2 class="text-2xl font-bold mb-6 text-center">Settlement Point Price Prediction</h2>
+
+    <!-- Settlement Point Dropdown -->
+    <label for="settlementPoint" class="block text-gray-700 font-semibold mb-2">Settlement Point Name:</label>
+    <select id="settlementPoint" class="w-full p-2 mb-4 border rounded" required>
+      <option value="">--Select Settlement Point--</option>
+    <option value="HB_HOUSTON">HB_HOUSTON</option>
+    <option value="HB_NORTH">HB_NORTH</option>
+    <option value=“HB_PAN">HB_PAN</option>
+    <option value=“HB_SOUTH">HB_SOUTH</option>
+    <option value=“HB_WEST”>HB_WEST</option
+    <option value=“LZ_AEN">LZ_AEN</option>
+    <option value="LZ_CPS">LZ_CPS</option>
+    <option value="LZ_HOUSTON">LZ_HOUSTON</option>
+    <option value="LZ_NORTH">LZ_NORTH</option>
+    <option value="LZ_RAYBN">LZ_RAYBN</option>
+    <option value="LZ_SOUTH">LZ_SOUTH</option>
+    <option value="LZ_WEST">LZ_WEST</option>
+    <!-- Add more options here -->
+  </select>
+
+    <label for="date" class="block text-gray-700 font-semibold mb-2">Select Date (Optional):</label>
+    <input type="date" id="date" class="w-full p-2 mb-6 border rounded">
+
+    <!-- Submit Button -->
+    <button onclick="submitForm()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+      Submit
+    </button>
+
+    <!-- Spinner (hidden by default) -->
+    <div id="spinner" class="text-center mt-6 hidden">
+      <p class="text-blue-500 font-semibold animate-pulse">Loading prediction...</p>
+    </div>
+
+    <!-- Chart -->
+    <div class="mt-8">
+      <h3 class="text-lg font-bold mb-4 text-center">Prediction Result:</h3>
+      <canvas id="myChart" width="400" height="200"></canvas>
+    </div>
+
+  </div>
+
+  <script>
+    // Set min and max date for the date picker when page loads
+    window.onload = function() {
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, '0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0
+      const yyyy = today.getFullYear();
+
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+
+      const maxDate = new Date();
+      maxDate.setDate(today.getDate() + 7);
+      const ddMax = String(maxDate.getDate()).padStart(2, '0');
+      const mmMax = String(maxDate.getMonth() + 1).padStart(2, '0');
+      const yyyyMax = maxDate.getFullYear();
+      const maxDateStr = `${yyyyMax}-${mmMax}-${ddMax}`;
+
+      const dateInput = document.getElementById('date');
+      dateInput.min = todayStr;
+      dateInput.max = maxDateStr;
+    };
+
+    async function submitForm() {
+      const settlementPoint = document.getElementById('settlementPoint').value;
+      let selectedDate = document.getElementById('date').value;
+      const spinner = document.getElementById('spinner');
+
+      if (!settlementPoint) {
+        alert('Please select a Settlement Point Name');
+        return;
+      }
+
+      // If no date selected, use today's date
+      if (!selectedDate) {
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const yyyy = today.getFullYear();
+        selectedDate = `${yyyy}-${mm}-${dd}`;
+      }
+
+      const payload = {
+        settlement_point: settlementPoint,
+        date: selectedDate
+      };
+
+      try {
+        // Show spinner
+        spinner.classList.remove('hidden');
+
+        const response = await fetch('https://your-backend-api-url/predict', {  // <<< Change this!
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        drawChart(result.hours, result.predictions);
+
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Something went wrong while fetching predictions.');
+      } finally {
+        // Always hide spinner
+        spinner.classList.add('hidden');
+      }
+    }
+
+    function drawChart(hours, predictions) {
+      const ctx = document.getElementById('myChart').getContext('2d');
+
+      // Destroy previous chart if exists
+      if (window.myChart) {
+        window.myChart.destroy();
+      }
+
+      window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: hours,
+          datasets: [{
+            label: 'Predicted Price ($)',
+            data: predictions,
+            fill: false,
+            borderColor: '#3b82f6',
+            borderWidth: 2,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Hour of Day'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Price ($)'
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
