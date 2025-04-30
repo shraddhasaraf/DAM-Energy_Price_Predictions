@@ -48,3 +48,4 @@ python -m uvicorn api.main:app --reload
 ```
 
 2. Access the api application at http://localhost:8000/docs
+
