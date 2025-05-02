@@ -1,7 +1,7 @@
 import datetime
 from enum import Enum
 from pydantic import BaseModel, field_validator
-
+from typing import List
 
 class ErcotProductRoute(Enum):
     SPP = "/np6-905-cd/spp_node_zone_hub"
@@ -99,7 +99,7 @@ class LoadRequestBody(BaseModel):
 
 class PredictionRequestBody(BaseModel):
     prediction_date: datetime.date = datetime.date.today()
-    settlement_point_name: SettlementPointName
+    settlement_point_name: List[SettlementPointName] = [SettlementPointName.HB_HOUSTON]
 
     @classmethod
     @field_validator("prediction_date")

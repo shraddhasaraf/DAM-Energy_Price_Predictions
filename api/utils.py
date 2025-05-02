@@ -79,8 +79,7 @@ async def get_file_from_s3(file_path: str, s3_client=None) -> bytes:
         return response["Body"].read()
     except ClientError as e:
         if e.response["Error"]["Code"] == "NoSuchKey":
-            logger.error(f"File not found: {file_path}")
-            raise FileNotFoundError(f"The file '{file_path}' does not exist in the bucket '{bucket_name}'.")
+            raise FileNotFoundError(f"The file '{file_path}' does not exist in S3.")
         logger.error(f"ClientError while accessing S3: {e}")
         raise
     except BotoCoreError as e:

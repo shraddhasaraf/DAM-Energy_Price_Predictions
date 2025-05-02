@@ -1,19 +1,85 @@
-# Ignore compiled Python files
-*.pyc
-
-# Ignore virtual environment directories
-.venv/
-
-# Ignore log files
-*.log
-
-# Ignore cache directories
+### Python ###
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+*$py.class
 
-# Ignore system files
+# C extensions
+*.so
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+eggs/
+.eggs/
+*.egg
+
+### Virtual Environments ###
+.venv/
+venv/
+ENV/
+env/
+virtualenv/
+
+### Logs and databases ###
+*.log
+*.sqlite
+*.db
+*.sql
+
+### Cache directories ###
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.cache
+coverage.xml
+*.cover
+
+### Data files ###
+*.csv
+*.dat
+*.out
+predicted_settlement_prices.csv
+
+### Environment variables ###
+.env
+.env.*
+!.env-sample
+
+### IDE specific files ###
+# VS Code
+.vscode/
+launch.json
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+
+# Jupyter
+.ipynb_checkpoints
+
+### System files ###
 .DS_Store
 Thumbs.db
+*.bak
+*.tmp
+*.orig
+desktop.ini
 
-.env
+### Documentation ###
+docs/_build/
+site/
 
-launch.json
+### Temporary files ###
+tmp/
+temp/
+
+### Dependency management ###
+pip-log.txt
+pip-delete-this-directory.txt
