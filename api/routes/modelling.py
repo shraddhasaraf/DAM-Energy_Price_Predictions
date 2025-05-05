@@ -57,7 +57,7 @@ async def make_predictions(s3_client=Depends(get_s3_client)):
 
     # Fetch forecast data from S3
     load_forcast_data = await get_forecast_data(ForecastRequestBody(
-        product=ErcotProductRoute.LOAD_FORECAST.value,
+        product=ErcotProductRoute.LOAD_FORECAST.name,
         post_from=datetime.now() - timedelta(hours=1),
         post_to=datetime.now()
     )
@@ -67,7 +67,7 @@ async def make_predictions(s3_client=Depends(get_s3_client)):
     load_forecast_df = pd.DataFrame(load_forcast_data['data'])
 
     wind_forcast_data = await get_forecast_data(ForecastRequestBody(
-        product=ErcotProductRoute.WIND_FORECAST.value,
+        product=ErcotProductRoute.WIND_FORECAST.name,
         post_from=datetime.now() - timedelta(hours=1),
         post_to=datetime.now()
     )
@@ -77,7 +77,7 @@ async def make_predictions(s3_client=Depends(get_s3_client)):
     wind_forecase_df = pd.DataFrame(wind_forcast_data['data'])
 
     solar_forcast_data = await get_forecast_data(ForecastRequestBody(
-        product=ErcotProductRoute.SOLAR_FORECAST.value,
+        product=ErcotProductRoute.SOLAR_FORECAST.name,
         post_from=datetime.now() - timedelta(hours=1),
         post_to=datetime.now()
     )
@@ -95,6 +95,6 @@ async def make_predictions(s3_client=Depends(get_s3_client)):
             spp_name.value
         )
         prediction_df = pd.concat([prediction_df, df], ignore_index=True)
-    file_name = f"predictions_latest.csv"
+    file_name = S3FileNameEnum.PREDICTIONS.value
     await upload_data_to_s3(prediction_df, file_name, s3_client)
     return {"message": "Predictions made successfully"}

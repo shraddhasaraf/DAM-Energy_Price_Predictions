@@ -37,6 +37,7 @@ class S3FileNameEnum(Enum):
     WIND = "wind_data.csv"
     LOAD = "load_data.csv"
     DUMMY = "dummy_data.csv"
+    PREDICTIONS = "prediction.csv"
 
 
 class SppRequestBody(BaseModel):
