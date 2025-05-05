@@ -267,8 +267,8 @@ async def get_forecast_data(body: ForecastRequestBody, s3_client=Depends(get_s3_
 
     product = ErcotProductRoute[body.product].value
     params = {
-        "postedDatetimeFrom": body.post_from,
-        "postedDatetimeTo": body.post_to,
+        "postedDatetimeFrom": body.post_from.strftime("%Y-%m-%dT%H:%M:%S"),
+        "postedDatetimeTo": body.post_to.strftime("%Y-%m-%dT%H:%M:%S"),
         "size": body.page_size
     }
 
@@ -277,7 +277,7 @@ async def get_forecast_data(body: ForecastRequestBody, s3_client=Depends(get_s3_
         params=params,
         process_func=process_any_data,
         data_type="Forecast",
-        file_name=S3FileNameEnum.LOAD.value,
+        file_name=S3FileNameEnum.DUMMY.value,
         upload_to_s3=False,
         s3_client=s3_client
     )

@@ -36,6 +36,7 @@ class S3FileNameEnum(Enum):
     SOLAR = "solar_data.csv"
     WIND = "wind_data.csv"
     LOAD = "load_data.csv"
+    DUMMY = "dummy_data.csv"
 
 
 class SppRequestBody(BaseModel):

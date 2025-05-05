@@ -5,7 +5,9 @@ from lightgbm import LGBMRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from datetime import timedelta
 
-def predict_settlement_point(spp_hu_df, spp_lz_df, solar_df, wind_df, load_df, settlement_point_name):
+
+def predict_settlement_point(spp_hu_df, spp_lz_df, solar_df, wind_df, load_df, load_forecast, wind_forecast,
+                             solar_forecast, settlement_point_name):
     """
     Predicts Settlement Price for the next 7 days for the given settlement point.
 
@@ -17,11 +19,10 @@ def predict_settlement_point(spp_hu_df, spp_lz_df, solar_df, wind_df, load_df, s
     """
 
     # ===== Load Historical Data =====
-    solar_df = pd.read_csv("/content/solar_data.csv", parse_dates=["deliveryDate"])
-    wind_df = pd.read_csv("/content/wind_data.csv", parse_dates=["deliveryDate"])
-    spp_hu_df = pd.read_csv("/content/spp_data_HU.csv", parse_dates=["deliveryDate"])
-    spp_lz_df = pd.read_csv("/content/spp_data_LZ.csv", parse_dates=["deliveryDate"])
-    load_df = pd.read_excel("/content/Load_2025.xlsx",parse_dates=["OperDay"])
+    solar_df['deliveryDate'] = pd.to_datetime(solar_df['deliveryDate'])
+    wind_df['deliveryDate'] = pd.to_datetime(wind_df['deliveryDate'])
+    spp_hu_df['deliveryDate'] = pd.to_datetime(spp_hu_df['deliveryDate'])
+    spp_lz_df['deliveryDate'] = pd.to_datetime(spp_lz_df['deliveryDate'])
     load_df = load_df.rename(columns={
         "OperDay": "deliveryDate",
         "HourEnding": "deliveryHour",
@@ -33,7 +34,6 @@ def predict_settlement_point(spp_hu_df, spp_lz_df, solar_df, wind_df, load_df, s
     # Extract numeric hour from HourEnding and compute the true hour (HourEnding 01:00 = 00:00–01:00)
     load_df["HourEnding"] = load_df["deliveryHour"].str.extract(r"(\d+)").astype(int)
     load_df["Timestamp"] = load_df["deliveryDate"] + pd.to_timedelta(load_df["HourEnding"] - 1, unit='h')
-
 
     # Expand each hour into 4 intervals, dividing SystemTotal equally
     expanded_rows = []
@@ -49,16 +49,15 @@ def predict_settlement_point(spp_hu_df, spp_lz_df, solar_df, wind_df, load_df, s
     load_df = pd.DataFrame(expanded_rows)  # Update load_df with expanded rows
     load_df = load_df.ffill()
 
-
     # ===== Load Forecast Data =====
-    solar_forecast = pd.read_csv("/content/SolarForecasted.csv", parse_dates=["DELIVERY_DATE"])
-    wind_forecast = pd.read_csv("/content/WindForecasted.csv", parse_dates=["DELIVERY_DATE"])
-    load_forecast = pd.read_csv("/content/Load_Forecast.csv")
+    solar_forecast['DELIVERY_DATE'] = pd.to_datetime(solar_forecast['DELIVERY_DATE'])
+    wind_forecast['DELIVERY_DATE'] = pd.to_datetime(wind_forecast['DELIVERY_DATE'])
 
     # ===== Process Load Forecast Data =====
     load_forecast["DELIVERY_DATE"] = pd.to_datetime(load_forecast["DeliveryDate"], format="%m/%d/%Y")
     load_forecast["HOUR_ENDING"] = load_forecast["HourEnding"].str.extract(r"(\d+)").astype(int)
-    load_forecast["Timestamp"] = pd.to_datetime(load_forecast["DELIVERY_DATE"]) + pd.to_timedelta(load_forecast["HOUR_ENDING"] - 1, unit="h")
+    load_forecast["Timestamp"] = pd.to_datetime(load_forecast["DELIVERY_DATE"]) + pd.to_timedelta(
+        load_forecast["HOUR_ENDING"] - 1, unit="h")
 
     def expand_load_forecast(df):
         rows = []
@@ -72,7 +71,6 @@ def predict_settlement_point(spp_hu_df, spp_lz_df, solar_df, wind_df, load_df, s
                 r["SystemTotal"] = per_interval_value  # assign divided value
                 rows.append(r)
         return pd.DataFrame(rows)[["deliveryDate", "deliveryHour", "deliveryInterval", "SystemTotal"]]
-
 
     # ===== Filter forecast data from current date =====
     last_timestamp = pd.concat([spp_hu_df, spp_lz_df])["deliveryDate"].max()
@@ -89,8 +87,10 @@ def predict_settlement_point(spp_hu_df, spp_lz_df, solar_df, wind_df, load_df, s
         ]
 
     # Reconstruct timestamps
-    solar_forecast["Timestamp"] = pd.to_datetime(solar_forecast["DELIVERY_DATE"]) + pd.to_timedelta(solar_forecast["HOUR_ENDING"] - 1, unit="h")
-    wind_forecast["Timestamp"] = pd.to_datetime(wind_forecast["DELIVERY_DATE"]) + pd.to_timedelta(wind_forecast["HOUR_ENDING"] - 1, unit="h")
+    solar_forecast["Timestamp"] = pd.to_datetime(solar_forecast["DELIVERY_DATE"]) + pd.to_timedelta(
+        solar_forecast["HOUR_ENDING"] - 1, unit="h")
+    wind_forecast["Timestamp"] = pd.to_datetime(wind_forecast["DELIVERY_DATE"]) + pd.to_timedelta(
+        wind_forecast["HOUR_ENDING"] - 1, unit="h")
 
     # Expand to 15-minute intervals
     def expand_hourly_forecast(df):
@@ -163,8 +163,10 @@ def predict_settlement_point(spp_hu_df, spp_lz_df, solar_df, wind_df, load_df, s
     df["Lag_1"] = df.groupby("settlementPoint")["settlementPointPrice"].shift(1)
     df["Lag_96"] = df.groupby("settlementPoint")["settlementPointPrice"].shift(96)
     df["Lag_288"] = df.groupby("settlementPoint")["settlementPointPrice"].shift(288)
-    df["RollingMean_3"] = df.groupby("settlementPoint")["settlementPointPrice"].shift(1).rolling(3).mean().reset_index(0, drop=True)
-    df["RollingStd_3"] = df.groupby("settlementPoint")["settlementPointPrice"].shift(1).rolling(3).std().reset_index(0, drop=True)
+    df["RollingMean_3"] = df.groupby("settlementPoint")["settlementPointPrice"].shift(1).rolling(3).mean().reset_index(
+        0, drop=True)
+    df["RollingStd_3"] = df.groupby("settlementPoint")["settlementPointPrice"].shift(1).rolling(3).std().reset_index(0,
+                                                                                                                     drop=True)
 
     df = df.dropna()
 
@@ -176,7 +178,7 @@ def predict_settlement_point(spp_hu_df, spp_lz_df, solar_df, wind_df, load_df, s
         "deliveryHour", "deliveryInterval", "DayOfWeek", "Month", "Year",
         'genSystemWide',  # wind
         'systemWide_GEN',
-        'SystemTotal'     # load
+        'SystemTotal'  # load
     ]
     target = "settlementPointPrice"
 
@@ -230,7 +232,7 @@ def predict_settlement_point(spp_hu_df, spp_lz_df, solar_df, wind_df, load_df, s
         "COP_HSL_FarWest": "farWest_GEN",  # Solar
         "COP_HSL_FarEast": "farEast_GEN",  # Solar
         "COP_HSL_SouthEast": "southEast_GEN",  # Solar
-        "COP_HSL_CenterEast": "centerEast_GEN", # Solar
+        "COP_HSL_CenterEast": "centerEast_GEN",  # Solar
         "COP_HSL_SYSTEMWIDE": "genSystemWide"  # Wind
     })
 
