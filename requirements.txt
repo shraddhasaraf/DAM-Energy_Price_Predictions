@@ -10,3 +10,5 @@ Requests==2.32.3
 uvicorn==0.34.2
 streamlit==1.45.0
 matplotlib==3.10.1
+scikit-learn==1.6.1
+lightgbm==4.6.0

@@ -252,22 +252,10 @@ async def process_wind_data(wind_data_df: pd.DataFrame) -> pd.DataFrame:
     return wind_data_df
 
 
-async def process_load_data(data):
+async def process_any_data(data_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Processes load data into a Pandas DataFrame.
-
-    Args:
-        data (list): The raw load data to process.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the processed load data.
+    Dummy function to process any data
     """
-    columns = ["date", "hour", "load_north", "load_south", "load_west", "load_houston", "load_total", "dst_flag"]
-    if not data:
-        print("No Load data")
-        return pd.DataFrame(columns=columns)
-    df = pd.DataFrame(np.array(data), columns=columns)
-    df["date"] = df["date"].apply(lambda x: datetime.datetime.strptime(x, "%Y-%m-%d"))
-    df['hour'] = df['hour'].str.split(':').str[0].astype(int) - 1
-    df = df.drop(columns=["dst_flag"])
-    return df
+    if data_df.empty:
+        return data_df
+    return data_df

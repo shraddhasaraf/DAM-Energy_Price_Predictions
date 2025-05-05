@@ -90,6 +90,33 @@ async def get_file_from_s3(file_path: str, s3_client=None) -> bytes:
         raise
 
 
+async def get_dataframe_from_s3(file_path: str, s3_client=None) -> pd.DataFrame:
+    """
+    Retrieves a CSV file from an S3 bucket and converts it to a DataFrame.
+
+    Args:
+        file_path (str): The path to the file in the S3 bucket.
+        s3_client: The S3 client dependency for interacting with Amazon S3.
+
+    Returns:
+        pd.DataFrame: The DataFrame containing the data from the CSV file.
+
+    Raises:
+        ValueError: If the S3 bucket name is not set in the environment variables.
+        FileNotFoundError: If the file does not exist in the S3 bucket.
+        Exception: For any other unexpected errors.
+    """
+    try:
+        response = await get_file_from_s3(file_path, s3_client)
+        return pd.read_csv(BytesIO(response))
+    except FileNotFoundError as e:
+        logger.error(f"File not found in S3: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error while reading CSV from S3: {e}")
+        raise
+
+
 async def update_data_in_s3(file_name: str, latest_data_df: pd.DataFrame, max_date: str, s3_client=None):
     """
     Updates data in an S3 bucket by merging new data with existing data, keeping only the last 90 days.
