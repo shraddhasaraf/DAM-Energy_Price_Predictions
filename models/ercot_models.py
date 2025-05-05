@@ -50,8 +50,8 @@ class SppRequestBody(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "start_date": "2024-01-01",
-                "end_date": "2024-01-31",
+                "start_date": datetime.date.today() - datetime.timedelta(days=91),
+                "end_date": datetime.date.today() - datetime.timedelta(days=1),
                 "settlement_point_type": "LZ",
                 "upload_to_s3": True,
                 "page_size": 5000
@@ -69,8 +69,8 @@ class SolarRequestBody(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "start_date": "2024-01-01",
-                "end_date": "2024-01-31",
+                "start_date": datetime.date.today() - datetime.timedelta(days=91),
+                "end_date": datetime.date.today() - datetime.timedelta(days=1),
                 "upload_to_s3": True,
                 "page_size": 5000
             }
@@ -87,8 +87,8 @@ class WindRequestBody(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "start_date": "2024-01-01",
-                "end_date": "2024-01-31",
+                "start_date": datetime.date.today() - datetime.timedelta(days=91),
+                "end_date": datetime.date.today() - datetime.timedelta(days=1),
                 "upload_to_s3": True,
                 "page_size": 5000
             }
@@ -105,8 +105,8 @@ class LoadRequestBody(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "start_date": "2024-01-01",
-                "end_date": "2024-01-31",
+                "start_date": datetime.date.today() - datetime.timedelta(days=91),
+                "end_date": datetime.date.today() - datetime.timedelta(days=1),
                 "upload_to_s3": True,
                 "page_size": 5000
             }
