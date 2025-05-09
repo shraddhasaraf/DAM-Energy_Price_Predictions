@@ -1,71 +1,80 @@
-# ERCOT Data Analytics Dashboard
+# Energy Price Prediction Dashboard for ERCOT
 
-This repository provides a solution for forecasting ERCOT energy data using various features such as solar, wind, and load data. The solution processes future data and merges it with forecasted features to generate predictions.
+This dashboard helps predict energy prices in Texas by analyzing data from ERCOT (Electric Reliability Council of Texas). It considers various factors like solar power, wind power, and electricity demand to make these predictions.
 
-## Features
+## What Can This Tool Do?
 
-- Processes future delivery dates, hours, and intervals.
-- Merges solar, wind, and load forecast data.
-- Generates predictions for energy forecasting.
-- Provides a web-based interface using Streamlit for visualization and CSV download
+- Predicts future energy prices
+- Shows forecasts for solar and wind power generation
+- Displays expected electricity demand
+- Provides an easy-to-use website interface to view and download data
 
-## Tech Stack
+## What You'll Need
 
-### Backend
-- Python FastAPI
-- Pandas for data processing
-- AWS S3 for data storage
-- Pydantic for data validation
+- A computer with Python installed (version 3.8 or newer)
+- An AWS account for data storage
+- ERCOT access credentials
+- Basic familiarity with running commands in a terminal
 
-## Prerequisites
-- Python 3.8+
-- AWS Account (for S3 storage)
-- ERCOT API credentials
-- pip (Python package manager)
+## Getting Started
 
-## Installation
-
-1. Clone the repository:
+1. Get the code:
 ```bash
 git clone [repository-url]
-cd ercot-analytics
+cd energy-price-predictions
 ```
-2. Set up the backend:
+
+2. Set up your workspace:
+- Open a terminal window
+- Run these commands one at a time:
 ```bash
-#Create and activate virtual environment
 python -m venv venv
 
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# If you're using Mac or Linux:
+source venv/bin/activate
 
-#Install backend dependencies
+# If you're using Windows:
+venv\Scripts\activate
+
+# Install required software:
 pip install -r requirements.txt
 ```
-3. Copy .env-sample and rename it to .env file in the root directory. Fill in the required environment variables.
 
-## Running the Application
-1. Start the backend server:
+3. Create your settings file:
+- Find the file named `.env-sample`
+- Make a copy of it and name the copy `.env`
+- Open the `.env` file and fill in your personal access details
+
+## Using the Dashboard
+
+1. Start the system:
 ```bash
 python -m uvicorn api.main:app --reload
 ```
 
-2. Access the api application at http://localhost:8000/docs
+2. View the data:
+- Open your web browser
+- Go to http://localhost:8000/docs
 
-### Running the Streamlit Web App
-The solution includes a Streamlit-based web app for visualization and CSV downloads.
+### Using the Visual Dashboard
 
-To run the app:
+We've created an easy-to-use website to view the predictions:
+
+1. Start the website:
 ```bash
 streamlit run app.py
 ```
 
-Access the app in your browser at http://localhost:8501
+2. View the dashboard:
+- Open your web browser
+- Go to http://localhost:8501
+- You can now view predictions and download data as CSV files
 
-3. API Integration
-The solution fetches data from the ERCOT API. Ensure the API is accessible and update the API URL and parameters in the code if necessary.
+## Getting Predictions
 
-## Running the Forecasting Script
-To generate forecasts programmatically, run the main script:
+To generate new predictions at any time:
 ```bash
 python model_service.py
 ```
 
+Need help? Contact our support team or raise an issue on GitHub.
