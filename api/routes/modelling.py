@@ -29,7 +29,7 @@ async def get_predictions(body: PredictionRequestBody, s3_client=Depends(get_s3_
         if not prediction_file:
             return HTTPException(status_code=404, detail="Prediction file not found")
         prediction_df = pd.read_csv(BytesIO(prediction_file))
-
+        prediction_df.drop_duplicates(inplace=True)
         spp_name_list = [spp_name.value for spp_name in body.settlement_point_name]
 
         prediction_for_date_df = prediction_df[(prediction_df['deliveryDate'] == str(body.prediction_date)) & (
