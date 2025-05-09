@@ -32,8 +32,7 @@ async def get_predictions(body: PredictionRequestBody, s3_client=Depends(get_s3_
         prediction_df.drop_duplicates(inplace=True)
         spp_name_list = [spp_name.value for spp_name in body.settlement_point_name]
 
-        prediction_for_date_df = prediction_df[(prediction_df['deliveryDate'] == str(body.prediction_date)) & (
-            prediction_df['settlementPoint'].isin(spp_name_list))]
+        prediction_for_date_df = prediction_df[(prediction_df['deliveryDate'] == str(body.prediction_date)) ]
         if prediction_for_date_df.empty:
             return {"error": f"No predictions found for the date {body.prediction_date}"}
         records = prediction_for_date_df.to_dict(orient='records')

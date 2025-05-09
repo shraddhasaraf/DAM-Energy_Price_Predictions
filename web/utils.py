@@ -21,7 +21,7 @@ def fetch_data(product: str, payload):
 
 def draw_timeseries_graph(df: pd.DataFrame, delivery_date: str, settlement_point: str):
     logger.info("Drawing timeseries graph")
-    filtered_data = df.copy()
+    filtered_data = df[df['settlementPoint'].isin(settlement_point) & (df['deliveryDate'] == delivery_date)]
 
     # Create a time index for plotting
     filtered_data['time'] = filtered_data['deliveryHour'] + (filtered_data['deliveryInterval'] - 1) * 0.25
